@@ -9,31 +9,31 @@ namespace SQRSBase.SerVice
 {
     public abstract class GetAll<T> where T:class
     {
-        public record Query(string key) : IRequest<IQueryable<T>>, ICacheable
+        public record Query(string key) : IRequest<Response<T>>, ICacheable
         {
             public string CacheKey => $"GetAll{key}";
         }
 
-        //public class Validator : IValidationHandler<Query>
-        //{
-        //    private readonly AppDbContext _context1;
-        //    private DbSet<T> table1;
-        //    public Validator(AppDbContext context1)
-        //    {
-        //        _context1 = context1;
-        //        table1 = _context1.Set<T>();
-        //    }
-        //    public async Task<ValidationResult> Validate(Query request)
-        //    {
-        //        var list = await table1.ToListAsync();
-        //        if (list.Count == 0)
-        //        {
-        //            return ValidationResult.Fail("Không có sản phẩm");
-        //        }
-        //        return ValidationResult.Success;
-        //    }
-        //}
-        public class Handler : IRequestHandler<Query, IQueryable<T>>
+        public class Validator : IValidationHandler<Query>
+        {
+            private readonly AppDbContext _context1;
+            private DbSet<T> table1;
+            public Validator(AppDbContext context1)
+            {
+                _context1 = context1;
+                table1 = _context1.Set<T>();
+            }
+            public async Task<ValidationResult> Validate(Query request)
+            {
+                var list = await table1.ToListAsync();
+                if (list.Count == 0)
+                {
+                    return ValidationResult.Fail("Không có sản phẩm");
+                }
+                return ValidationResult.Success;
+            }
+        }
+        public class Handler : IRequestHandler<Query, Response<T>>
         {
             private readonly AppDbContext _context;
             private DbSet<T> table;
@@ -43,17 +43,19 @@ namespace SQRSBase.SerVice
                 table = _context.Set<T>();
             }
 
-            public async Task<IQueryable<T>> Handle(GetAll<T>.Query request, CancellationToken cancellationToken)
+            public async Task<Response<T>> Handle(GetAll<T>.Query request, CancellationToken cancellationToken)
             {
                 //var res = new ResponseGetAll<T>
                 //{
                 //    entity = table,
 
                 //};
-                return table;
+                var content = new Response<T>
+                {
+                    entity = table
+                };
+                return content;
             }
-
-            
         }
 
     }

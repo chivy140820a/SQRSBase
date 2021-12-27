@@ -12,15 +12,16 @@ namespace SQRSBase.Repository
             _mediator = mediator;
         }
         
-        public async Task<Response<T>> FindById(int Id)
+        public async Task<FindResponse<T>> FindById(int Id)
         {
             var find = await _mediator.Send(new FindById<T>.Query(Id));
             return find;
         }
 
-        public Task<ResponseGetAll<T>> GetAll(string key)
+        public async Task<Response<T>> GetAll(string key)
         {
-            throw new NotImplementedException();
+            var find = await _mediator.Send(new GetAll<T>.Query(key));
+            return find;
         }
 
         //public async Task<ResponseGetAll<T>> GetAll(string key)

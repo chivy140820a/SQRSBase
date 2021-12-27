@@ -9,7 +9,7 @@ namespace SQRSBase.SerVice
 {
     public static class FindById<T> where T : class
     {
-        public record Query(int Id) : IRequest<Response<T>>, ICacheable
+        public record Query(int Id) : IRequest<FindResponse<T>>, ICacheable
         {
             public string CacheKey => $"Id{Id}";
         }
@@ -34,7 +34,7 @@ namespace SQRSBase.SerVice
                 return ValidationResult.Success;
             }
         }
-        public class Handler : IRequestHandler<Query, Response<T>>
+        public class Handler : IRequestHandler<Query, FindResponse<T>>
         {
             private readonly AppDbContext _context;
             private DbSet<T> table;
@@ -44,10 +44,10 @@ namespace SQRSBase.SerVice
                 table = _context.Set<T>();
             }
 
-            public async Task<Response<T>> Handle(FindById<T>.Query request, CancellationToken cancellationToken)
+            public async Task<FindResponse<T>> Handle(FindById<T>.Query request, CancellationToken cancellationToken)
             {
                 var find = await table.FindAsync(request.Id);
-                var res = new Response<T>()
+                var res = new FindResponse<T>()
                 {
                     entity = find
                 };

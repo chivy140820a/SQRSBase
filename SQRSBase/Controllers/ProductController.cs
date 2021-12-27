@@ -14,32 +14,24 @@ namespace SQRSBase.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly IMediator _mediator;
-        public ProductController(IMediator mediator, AppDbContext context)
+
+        private readonly IProductSerVice _productSerVice;
+        public ProductController(IProductSerVice productSerVice)
         {
-            _context = context;
-            _mediator = mediator;
+            _productSerVice = productSerVice;
         }
-        //private readonly IProductSerVice _productSerVice;
-        //public ProductController(IProductSerVice productSerVice)
-        //{
-        //    _productSerVice = productSerVice;
-        //}
-        [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll()
+        [HttpPost("GetAll")]
+        public async Task<IActionResult> GetAll(string key)
         {
-            var getall = await _mediator.Send(new GetAll<Product>.Query("content")) ;
-            return Ok(await getall.ToListAsync());
+            var getall = await _productSerVice.GetAll(key);
+            return Ok(await getall.entity.ToListAsync());
         }
-        [HttpGet("GetAllContent")]
-        public async Task<IActionResult> GetAllContent()
+        [HttpPost("FindById")]
+        public async Task<IActionResult> FindById([FromForm]int Id)
         {
-            var get = new ResponseGetAll<Product>
-            {
-                entity =  _context.Products,
-            };
-            return Ok(await get.entity.ToListAsync());
+            var find = await _productSerVice.FindById(Id);
+            return Ok(find.entity);
         }
+
     }
 }
